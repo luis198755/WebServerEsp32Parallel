@@ -1,3 +1,5 @@
+#include <ArduinoJson.h>
+
 #include <WiFi.h>
 #include <WebServer.h> // Include the Web Server library
 
@@ -71,13 +73,35 @@ void Task1code(void * pvParameters) {
   });
 
   server.on("/data", HTTP_POST, []() {
-    String message = "Received numbers: ";
+    /*String message = "Received numbers: ";
     message += "Num1: " + server.arg("num1") + ", ";
     message += "Num2: " + server.arg("num2") + ", ";
     message += "Num3: " + server.arg("num3") + ", ";
     message += "Num4: " + server.arg("num4");
     Serial.println(message);
-    server.send(200, "text/plain", "Data received. Check the serial monitor.");
+    server.send(200, "text/plain", "Data received. Check the serial monitor.");*/
+    // Parse received numbers
+    int num1 = server.arg("num1").toInt();
+    int num2 = server.arg("num2").toInt();
+    int num3 = server.arg("num3").toInt();
+    int num4 = server.arg("num4").toInt();
+
+    // Create a JSON object
+    StaticJsonDocument<200> doc;
+    doc["temperature"] = num1;
+    doc["humidity"] = num2;
+    doc["pressure"] = num3;
+    doc["noise"] = num4;
+
+    // Generate a string from the JSON object
+    String output;
+    serializeJson(doc, output);
+
+    // Print the JSON string to the terminal
+    Serial.println(output);
+
+    // Send a response to the client
+    server.send(200, "text/plain", "Data received and processed. Check the serial monitor.");
   });
 
   server.begin();
